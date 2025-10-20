@@ -1,161 +1,204 @@
-import React from "react";
-import { Stack, Link } from "expo-router";
-import { FlatList, Pressable, StyleSheet, View, Text, Alert, Platform } from "react-native";
-import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
-import { useTheme } from "@react-navigation/native";
 
-const ICON_COLOR = "#007AFF";
+import React from "react";
+import { Stack } from "expo-router";
+import { ScrollView, Pressable, StyleSheet, View, Text, Platform } from "react-native";
+import { IconSymbol } from "@/components/IconSymbol";
+import { useRouter } from "expo-router";
+import { colors, commonStyles } from "@/styles/commonStyles";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-  const theme = useTheme();
-  const modalDemos = [
+  const router = useRouter();
+
+  const modules = [
     {
-      title: "Standard Modal",
-      description: "Full screen modal presentation",
-      route: "/modal",
-      color: "#007AFF",
+      title: "Modulo COAU",
+      description: "Alfabeto fonetico, traduttore e esercitazioni",
+      icon: "text.bubble.fill",
+      route: "/coau",
+      color: colors.primary,
     },
     {
-      title: "Form Sheet",
-      description: "Bottom sheet with detents and grabber",
-      route: "/formsheet",
-      color: "#34C759",
+      title: "Comunicazioni Operative",
+      description: "Messaggi standard DOS-Canadair",
+      icon: "antenna.radiowaves.left.and.right",
+      route: "/communications",
+      color: colors.secondary,
     },
     {
-      title: "Transparent Modal",
-      description: "Overlay without obscuring background",
-      route: "/transparent-modal",
-      color: "#FF9500",
-    }
+      title: "Sicurezza",
+      description: "Check-list e registro eventi",
+      icon: "shield.fill",
+      route: "/safety",
+      color: colors.accent,
+    },
+    {
+      title: "Formazione",
+      description: "Quiz e esercitazioni COAU",
+      icon: "book.fill",
+      route: "/training",
+      color: colors.success,
+    },
   ];
-
-  const renderModalDemo = ({ item }: { item: (typeof modalDemos)[0] }) => (
-    <GlassView style={[
-      styles.demoCard,
-      Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-    ]} glassEffectStyle="regular">
-      <View style={[styles.demoIcon, { backgroundColor: item.color }]}>
-        <IconSymbol name="square.grid.3x3" color="white" size={24} />
-      </View>
-      <View style={styles.demoContent}>
-        <Text style={[styles.demoTitle, { color: theme.colors.text }]}>{item.title}</Text>
-        <Text style={[styles.demoDescription, { color: theme.dark ? '#98989D' : '#666' }]}>{item.description}</Text>
-      </View>
-      <Link href={item.route as any} asChild>
-        <Pressable>
-          <GlassView style={[
-            styles.tryButton,
-            Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' }
-          ]} glassEffectStyle="clear">
-            <Text style={[styles.tryButtonText, { color: theme.colors.primary }]}>Try It</Text>
-          </GlassView>
-        </Pressable>
-      </Link>
-    </GlassView>
-  );
-
-  const renderHeaderRight = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol name="plus" color={theme.colors.primary} />
-    </Pressable>
-  );
-
-  const renderHeaderLeft = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol
-        name="gear"
-        color={theme.colors.primary}
-      />
-    </Pressable>
-  );
 
   return (
     <>
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Building the app...",
-            headerRight: renderHeaderRight,
-            headerLeft: renderHeaderLeft,
+            title: "AIB/VVF DOS-Canadair",
+            headerLargeTitle: true,
           }}
         />
       )}
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <FlatList
-          data={modalDemos}
-          renderItem={renderModalDemo}
-          keyExtractor={(item) => item.route}
+      <SafeAreaView style={[commonStyles.container]} edges={['top']}>
+        <ScrollView 
+          style={styles.scrollView}
           contentContainerStyle={[
-            styles.listContainer,
-            Platform.OS !== 'ios' && styles.listContainerWithTabBar
+            styles.contentContainer,
+            Platform.OS !== 'ios' && styles.contentContainerWithTabBar
           ]}
-          contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
-        />
-      </View>
+        >
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <IconSymbol name="flame.fill" size={48} color={colors.primary} />
+            </View>
+            <Text style={styles.headerTitle}>AIB/VVF</Text>
+            <Text style={styles.headerSubtitle}>
+              Sistema di Gestione Comunicazioni{'\n'}DOS - Canadair
+            </Text>
+          </View>
+
+          <View style={styles.modulesContainer}>
+            {modules.map((module, index) => (
+              <Pressable
+                key={index}
+                style={({ pressed }) => [
+                  styles.moduleCard,
+                  pressed && styles.moduleCardPressed,
+                ]}
+                onPress={() => router.push(module.route as any)}
+              >
+                <View style={[styles.moduleIcon, { backgroundColor: module.color }]}>
+                  <IconSymbol name={module.icon as any} size={32} color="#FFFFFF" />
+                </View>
+                <View style={styles.moduleContent}>
+                  <Text style={styles.moduleTitle}>{module.title}</Text>
+                  <Text style={styles.moduleDescription}>{module.description}</Text>
+                </View>
+                <IconSymbol name="chevron.right" size={20} color={colors.textSecondary} />
+              </Pressable>
+            ))}
+          </View>
+
+          <View style={styles.infoCard}>
+            <IconSymbol name="info.circle.fill" size={24} color={colors.secondary} />
+            <Text style={styles.infoText}>
+              Applicazione per la gestione delle comunicazioni operative tra il Direttore delle 
+              Operazioni di Spegnimento (DOS) e i Canadair durante le operazioni AIB.
+            </Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
-    // backgroundColor handled dynamically
   },
-  listContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+  contentContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
-  listContainerWithTabBar: {
-    paddingBottom: 100, // Extra padding for floating tab bar
+  contentContainerWithTabBar: {
+    paddingBottom: 100,
   },
-  demoCard: {
+  header: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  logoContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+    elevation: 4,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  modulesContainer: {
+    marginTop: 20,
+  },
+  moduleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 3,
   },
-  demoIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  moduleCardPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
+  },
+  moduleIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
   },
-  demoContent: {
+  moduleContent: {
     flex: 1,
   },
-  demoTitle: {
+  moduleTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: colors.text,
     marginBottom: 4,
-    // color handled dynamically
   },
-  demoDescription: {
+  moduleDescription: {
     fontSize: 14,
+    fontWeight: '400',
+    color: colors.textSecondary,
     lineHeight: 18,
-    // color handled dynamically
   },
-  headerButtonContainer: {
-    padding: 6,
+  infoCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 3,
   },
-  tryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  tryButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    // color handled dynamically
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '400',
+    color: colors.textSecondary,
+    lineHeight: 18,
+    marginLeft: 12,
   },
 });
